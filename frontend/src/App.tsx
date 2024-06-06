@@ -1,18 +1,32 @@
-import { useState } from 'react';
-import { Button } from 'react-bootstrap';
+import { useEffect, useState } from 'react';
+import { Note as NoteModel } from './models/note';
+import Note from './components/Note';
 
 const App = () => {
-  const [clickCount, setClickCount] = useState(0);
+  const [notes, setNotes] = useState<NoteModel[]>([]);
+
+  useEffect(() => {
+    async function loadNotes() {
+      try {
+        const response = await fetch('/api/notes', {
+          method: 'GET',
+        });
+
+        const notes = await response.json();
+        setNotes(notes);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    loadNotes();
+  }, []);
 
   return (
-    <>
-      <div className="container py-4 px-3 mx-auto">
-        <h1>Hello, Bootstrap and Vite!</h1>
-        <Button onClick={() => setClickCount(clickCount + 1)}>
-          Clicked {clickCount} times
-        </Button>
-      </div>
-    </>
+    <div className="container py-4 px-3 mx-auto">
+      {notes.map((note) => (
+        <Note key={note._id} note={note} />
+      ))}
+    </div>
   );
 };
 
